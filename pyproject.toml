@@ -2,7 +2,11 @@
 name = "incident-copilot"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "datetime>=6.0",
+    "fastapi>=0.162.0",
+    "pydantic>=2.14.2",
+]
 
 [dependency-groups]
 dev = [
@@ -19,3 +23,4 @@ select = ["E","F","I","B","UP","SIM"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
