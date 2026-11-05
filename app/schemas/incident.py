@@ -1,10 +1,16 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import StrEnum, auto
-from uuid import uuid4
+from typing import Annotated, Self
+from uuid import UUID, uuid4
 
-from typing_extensions import Self
-from typing import Annotated
-from pydantic import BaseModel, Field, field_validator, model_validator, StringConstraints
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    Field,
+    StringConstraints,
+    field_validator,
+    model_validator,
+)
 
 
 class SeverityEnum(StrEnum):
@@ -22,7 +28,7 @@ class StatusEnum(StrEnum):
 
 
 class IncidentCreate(BaseModel):
-    title: Annotated[str,StringConstraints(max_length=200)]
+    title: Annotated[str,StringConstraints(min_length=1, max_length=200)]
     description: str
     service: str
     severity: SeverityEnum
@@ -34,17 +40,20 @@ class IncidentCreate(BaseModel):
 
 
 class Incident(IncidentCreate):
-    id: str = uuid4()
+    id: UUID = Field(default_factory=lambda: uuid4(), validate_default=True)
+    
     status: StatusEnum = StatusEnum.OPEN
-    created_at: datetime=datetime.now(timezone.utc) 
-    updated_at: datetime=datetime.now(timezone.utc)
+    created_at: AwareDatetime = Field(default_factory=lambda: datetime.now(UTC), validate_default=True)
+    updated_at: AwareDatetime = Field(default_factory=lambda: datetime.now(UTC), validate_default=True)
 
     @model_validator(mode='after')
     def check_dates(self) -> Self:
-        if self.updated_at < self.created_at:
-            raise ValueError('Created date cannot be higher that updated date')
-
+        if self.created_at > self.updated_at:
+            raise ValueError('Created date cannot be later than updated date')
+        return self
 
 if __name__ == "__main__":
-    newincident=Incident(created_at=datetime.now(),updated_at=datetime.now(),title='title1     ',description='some description',service='service1',severity=SeverityEnum.SEV1)
-    print(newincident.json())
+    newincident=Incident(title='title1     ',description='some description',service='service1',severity=SeverityEnum.SEV1)
+    newincident2=Incident(title='title1     ',description='some description',service='service1',severity=SeverityEnum.SEV1)
+    print(newincident.model_dump_json())
+    print(newincident2.model_dump_json())
