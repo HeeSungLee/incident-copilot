@@ -27,7 +27,7 @@ class StatusEnum(StrEnum):
     MITIGATED = auto()
     RESOLVED = auto()
 
-class serviceEnum(StrEnum):
+class ServiceEnum(StrEnum):
     SERV1 = "service 1"
     SERV2 = "service 2"
     SERV3 = "service 3"
