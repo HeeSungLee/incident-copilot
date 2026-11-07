@@ -37,19 +37,10 @@ class serviceEnum(StrEnum):
 class IncidentCreate(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    title: Annotated[str,StringConstraints(min_length=1, max_length=200)]
+    title: Annotated[str,StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
     description: str
     service: serviceEnum
     severity: SeverityEnum
-
-    @field_validator('title', mode='after')
-    @classmethod
-    def strip(cls,value:str) -> str:
-        stripped_str=value.strip()
-        if stripped_str=="":
-            raise ValueError('The title should be between 1 and 200 characters')
-        return stripped_str
-
 
 class Incident(IncidentCreate):
     id: UUID = Field(default_factory=lambda: uuid4(), validate_default=True)
@@ -75,7 +66,7 @@ class Incident(IncidentCreate):
 
 
 if __name__ == "__main__":
-    newincident=Incident(title='title1     ',description='some description', service=serviceEnum.SERV1,severity=SeverityEnum.SEV1)
+    newincident=Incident(title='     ',description='some description', service=serviceEnum.SERV1,severity=SeverityEnum.SEV1)
     newincident2=Incident(title='title1     ',description='some description', service=serviceEnum.SERV2,severity=SeverityEnum.SEV1)
     print(newincident.model_dump_json())
     print(newincident2.model_dump_json())
