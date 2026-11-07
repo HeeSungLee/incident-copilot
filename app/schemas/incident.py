@@ -39,7 +39,7 @@ class IncidentCreate(BaseModel):
 
     title: Annotated[str,StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
     description: str
-    service: serviceEnum
+    service: ServiceEnum
     severity: SeverityEnum
 
 class Incident(IncidentCreate):
