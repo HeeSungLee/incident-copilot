@@ -55,16 +55,16 @@ class Incident(IncidentCreate):
     id: UUID = Field(default_factory=lambda: uuid4(), validate_default=True)
     
     status: StatusEnum = StatusEnum.OPEN
-    created_at: AwareDatetime | None = None
-    updated_at: AwareDatetime | None = None
+    created_at: AwareDatetime
+    updated_at: AwareDatetime
 
-    @model_validator(mode='after')
+    @model_validator(mode='before')
     def set_default_timestamps(self) -> Self:
         current_timestamp=datetime.now(UTC)
-        if self.created_at is None:
-            self.created_at = current_timestamp
-        if self.updated_at is None:
-            self.updated_at = current_timestamp
+        if "created_at" not in self:
+            self["created_at"] = current_timestamp
+        if "updated_at" not in self:
+             self["updated_at"] = current_timestamp
         return self
 
     @model_validator(mode='after')
